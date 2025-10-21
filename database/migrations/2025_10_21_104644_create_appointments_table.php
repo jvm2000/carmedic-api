@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Vehicle;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,16 +14,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('appointments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('full_name');
-            $table->string('email')->unique();
-            $table->string('phone_number')->unique();
-            $table->string('whatsapp_number')->unique();
-            $table->text('address');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->date('scheduled_date');
+            $table->time('scheduled_time');
+            $table->string('location');
+            $table->text('additional_notes');
+            $table->foreignIdFor(Vehicle::class);
             $table->timestamps();
         });
     }
@@ -34,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('appointments');
     }
 };

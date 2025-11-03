@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Vehicle;
+use App\Models\Appointment;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,13 +14,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('appointments', function (Blueprint $table) {
+        Schema::create('collections', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->date('scheduled_date');
-            $table->time('scheduled_time');
-            $table->text('additional_notes');
-            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
-            $table->foreignIdFor(Vehicle::class);
+            $table->text('location');
+            $table->string('collected_by');
+            $table->text('towing_team_name');
+            $table->foreignIdFor(Appointment::class);
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('appointments');
+        Schema::dropIfExists('collections');
     }
 };

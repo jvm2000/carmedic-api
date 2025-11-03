@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,22 +10,35 @@ use Illuminate\Support\Facades\Validator;
 
 class VehicleController extends Controller
 {
+    public function get()
+    {
+        $user = Auth::id();
+
+        $vehicle = Vehicle::where('user_id', $user)->first();
+
+        if (!$vehicle) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No vehicle found for this user.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $vehicle
+        ], 200);
+    }
+
     public function store(Request $request) {
-        $form = Validator::make($request->all(), [
+        $form = $request->validate([
             'plate_number' => 'required|string',
             'make' => 'required|string',
             'model' => 'required|string',
             'year' => 'required|string',
             'registration_card_number' => 'required|string',
-            'images' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images' => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-
-        if ($form->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $form->errors(),
-            ], 422);
-        }
 
         $imagePaths = [];
 
@@ -36,12 +50,9 @@ class VehicleController extends Controller
         }
 
         $form['images'] = $imagePaths;
+        $form['user_id'] = Auth::id();
 
-        $data = $form->validated();
-
-        $data['user_id'] = Auth::id();
-
-        $vehicle = Vehicle::create($data);
+        $vehicle = Vehicle::create($form);
 
         return response()->json([
             'success' => true,

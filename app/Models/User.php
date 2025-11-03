@@ -46,6 +46,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function vehicle()
+    {
+        return $this->hasOne(Vehicle::class);
+    }
+
     public $incrementing = false;
 
     protected $keyType = 'string';

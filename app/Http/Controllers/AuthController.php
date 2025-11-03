@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
+    public function login(Request $request) {
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -38,7 +37,7 @@ class AuthController extends Controller
             'phone_number' => 'required|string|max:12',
             'whatsapp_number' => 'required|string|max:12',
             'address' => 'required|string',
-            'password' => 'required|string',
+            'password' => 'required|string|confirmed',
         ]);
 
         if ($form->fails()) {
@@ -48,12 +47,29 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create($form);
+        $validated = $form->validated();
+
+        $user = User::create([
+            'full_name' => $validated['full_name'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
+            'whatsapp_number' => $validated['whatsapp_number'],
+            'address' => $validated['address'],
+            'password' => Hash::make($validated['password']),
+        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully.',
             'data'    => $user
         ], 201);
+    }
+
+    public function logout(Request $request)
+    {
+        // Revoke the token used for the current request
+        $request->user()->tokens()->delete();
+
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\CheckStepStatus;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,12 +28,14 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/getSteps', [CheckStepStatus::class, 'checkStep']);
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Vehicle Controllers 
     Route::get('/getVehicle', [VehicleController::class, 'get']);
     Route::post('/vehicle', [VehicleController::class, 'store']);
 
-    Route::get('/getAppointment', [AppointmentController::class, 'get']);
+    Route::get('/getAppointment/{vehicle}', [AppointmentController::class, 'get']);
     Route::post('/appointment/{vehicle}', [AppointmentController::class, 'store']);
 });

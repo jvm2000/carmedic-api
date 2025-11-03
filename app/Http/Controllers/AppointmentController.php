@@ -10,11 +10,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AppointmentController extends Controller
 {
-    public function get()
+    public function get(Vehicle $vehicle)
     {
-        $user = Auth::id();
-
-        $appointment = Appointment::where('user_id', $user)->first();
+        $appointment = Appointment::where('vehicle_id', $vehicle->id)->first();
 
         if (!$appointment) {
             return response()->json([
@@ -30,25 +28,15 @@ class AppointmentController extends Controller
     }
     
     public function store(Request $request, Vehicle $vehicle) {
-        $form = Validator::make($request->all(), [
+        $form = $request->validate([
             'scheduled_date' => 'required|date',
-            'scheduled_time' => 'required|tune',
+            'scheduled_time' => 'required|date_format:H:i:s',
             'additional_notes' => 'required|string',
         ]);
 
-        if ($form->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $form->errors(),
-            ], 422);
-        }
+        $form['vehicle_id'] = $vehicle->id;  
 
-        $validated = $form->validated();    
-
-        $appointment = Appointment::create([
-            ...$validated,
-            'vehicle_id' => $vehicle,
-        ]);
+        $appointment = Appointment::create($form);
 
         return response()->json([
             'success' => true,
